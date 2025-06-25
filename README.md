@@ -20,6 +20,11 @@ first i would make a DNS server then the client and then servers can be added to
 `initDns.lua` ona computer <br>
 now execute `initDns.lua` and the rest is done by the system <br>
 
+#### file tree
+computer/<br>
+├── dnsServer.lua<br>
+└── initDns.lua ← Execute this file to start the system
+
 ### setup mcNet-client
 so first i would advise you to make a folder on the machine where you are going to install the client on so that the files are in one place tho you don't have to do that<br>
 for example `internet` as the folder name <br>
