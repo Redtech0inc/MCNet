@@ -39,7 +39,7 @@ internet/
 ├── mcNet-client.lua  ← Execute this file first  
 ├── libs/  
 │   ├── logo.nfp  
-│   └── openUILib.lua
+│   └── openUILib.lua<br>
 ├── pages/
 
 ### setup server
