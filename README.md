@@ -33,6 +33,8 @@ it is going to give you an error but thats normal now enter the newly created li
 and drop the `logo.nfp` and the `openUILib.lua` file in there
 then go back and execute `mcNet-cleint.lua` again now it should work!
 
+repo folder [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/client-stuff)
+
 #### 📁 File Tree (Client Side Example)
 
 internet/  
