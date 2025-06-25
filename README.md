@@ -10,8 +10,7 @@ hope you'll enjoy ;) !
 
 ## how to set up
 
-first i would make a DNS server this is easy 
-just install <br>
+first i would make a DNS server then the client and then servers can be added to the network!<br>
 
 ### setup DNS server
 
