@@ -8,6 +8,14 @@ if you have questions feel free to ask on the MCCM Discord you should find my po
 
 hope you'll enjoy ;) !
 
+## how to set up
+
+first i would make a DNS server this is easy 
+just install
+dnsServer.lua and
+initDns.lua ona computer
+now execute initDns.lua and the rest is done by the system
+
 ## coming soon/maybe today
 
 <list> reload feature
