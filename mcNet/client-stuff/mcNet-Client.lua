@@ -532,6 +532,7 @@ end
 
 _G.systemOut = nil
 _G.currentPage = nil
+_G.openUILib = nil
 
 rednet.close(modemSide)
 openUILib.quit()
