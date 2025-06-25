@@ -54,9 +54,9 @@ now as already told put `serverLib.lua` in the libs folder!
 
 repo folders:<br>
 
-<li>server framework    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework)
-<li>server libraries    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/libs)
-<li>server exanple page [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/pages)
+- server framework    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework) <br>
+- server libraries    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/libs) <br>
+- server exanple page [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/pages) <br>
 
 #### 📁 File Tree (Server Side Example)
 
