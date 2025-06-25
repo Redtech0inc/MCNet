@@ -40,6 +40,7 @@ internet/
 ├── libs/  
 │   ├── logo.nfp  
 │   └── openUILib.lua
+├── pages/
 
 ### setup server
 so to set up a server enter any computer with ender/wireless(not advised) modem<br>
