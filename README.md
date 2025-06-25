@@ -12,7 +12,7 @@ hope you'll enjoy ;) !
 
 ## how to set up
 
-first i would make a DNS server then the client and then servers can be added to the network!<br>
+First, I recommend making a DNS server, then the client, and then servers can be added to the network!<br>
 
 ### setup DNS server
 
