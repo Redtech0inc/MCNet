@@ -20,7 +20,7 @@ first i would make a DNS server then the client and then servers can be added to
 `initDns.lua` ona computer <br>
 now execute `initDns.lua` and the rest is done by the system <br>
 
-#### 📁 File Tree (DNS Server Example)
+#### 📁 File Tree (DNS Server side Example)
 computer/<br>
 ├── dnsServer.lua<br>
 └── initDns.lua ← Execute this file to start the system
@@ -47,6 +47,14 @@ so to set up a server enter any computer with ender/wireless(not advised) modem<
 now instal `server.lua` this is your server framework (which you can edit)<br>
 you will also have to open a folder to hold all your "pages" and a folder thta MUST be named `libs` this is where custom librtaries and the server Library will sit<br>
 now as already told put `serverLib.lua` in the libs folder!
+
+#### 📁 File Tree (Server Side Example)
+
+server/  
+├── server.lua              ← Main server framework (can be edited)  
+├── libs/  
+│   └── serverLib.lua       ← Required server library  
+└── pages/                  ← Holds all your "pages"
 
 ## coming soon/maybe today
 
