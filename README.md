@@ -52,8 +52,9 @@ now as already told put `serverLib.lua` in the libs folder!
 
 server/  
 ├── server.lua              ← Main server framework (can be edited)  
-├── libs/  
-│   └── serverLib.lua       ← Required server library  
+├── libs/                   ← Contains required and custom libraries  
+│   ├── serverLib.lua       ← Required server library  
+│   └── yourCustomLib.lua   ← 🔧 Optional custom libraries (not required by server)  
 └── pages/                  ← Holds all your "pages"
 
 ## coming soon/maybe today
