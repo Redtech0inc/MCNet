@@ -36,11 +36,11 @@ then go back and execute `mcNet-cleint.lua` again now it should work!
 #### 📁 File Tree (Client Side Example)
 
 internet/  
-├── mcNet-client.lua  ← Execute this file first  
+├── mcNet-client.lua   ← Execute this file first  
 ├── libs/  
 │   ├── logo.nfp  
-│   └── openUILib.lua<br>
-├── pages/
+│   └── openUILib.lua  
+└── pages/
 
 ### setup server
 so to set up a server enter any computer with ender/wireless(not advised) modem<br>
