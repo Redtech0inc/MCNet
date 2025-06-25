@@ -322,6 +322,7 @@ peripheral.find("modem",function (name,_)
         modemSide = name
     end
 end)
+if not modemSide then error("could not find ender modem please in stall one!") end
 
 rednet.open(modemSide)
 
