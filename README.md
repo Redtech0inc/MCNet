@@ -28,6 +28,12 @@ it is going to give you an error but thats normal now enter the newly created li
 and drop the `logo.nfp` and the `openUILib.lua` file in there
 then go back and execute `mcNet-cleint.lua` again now it should work!
 
+### setup server
+so to set up a server enter any computer with ender/wireless(not advised) modem<br>
+now instal `server.lua` this is your server framework (which you can edit)<br>
+you will also have to open a folder to hold all your "pages" and a folder thta MUST be named `libs` this is where custom librtaries and the server Library will sit<br>
+now as already told put `serverLib.lua` in the libs folder!
+
 ## coming soon/maybe today
 
 <list> reload feature
