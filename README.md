@@ -52,6 +52,12 @@ now instal `server.lua` this is your server framework (which you can edit)<br>
 you will also have to open a folder to hold all your "pages" and a folder thta MUST be named `libs` this is where custom librtaries and the server Library will sit<br>
 now as already told put `serverLib.lua` in the libs folder!
 
+repo folders:<br>
+
+<list>server framework    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework)
+<list>server libraries    [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/libs)
+<list>server exanple page [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/serverFramework/pages)
+
 #### 📁 File Tree (Server Side Example)
 
 server/  
