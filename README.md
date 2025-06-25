@@ -2,9 +2,11 @@
 ## about
 This is the official repo for the MCNet Project Lua code for CC-Tweaked
 
-i know this isn't much but i just threw this repo together in like a few second so please don#t be mad about that srry
+i know this isn't much but i just threw this repo together in like a few second so please don't be mad about that srry
 
-ope you'll enjoy ;) !
+if you have questions feel free to ask on the MCCM Discord you should find my post under creations and then just the name of the repo (Discord LINK)[https://discord.gg/minecraft-computer-mods-477910221872824320]
+
+hope you'll enjoy ;) !
 
 ## coming soon/maybe today
 
