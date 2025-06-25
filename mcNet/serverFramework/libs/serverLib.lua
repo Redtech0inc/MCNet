@@ -9,17 +9,14 @@ local function getLibs(content)
     libList[1]={}
     libList[2]={}
     while string.find(content,"--import",nil,true) do
-        print(content)
         local _,pos1 = string.find(content,"--import<",nil,true)
         local pos2 = string.find(content,">",nil,true)
 
         table.insert(libList[1],content:sub(pos1+1,pos2-1))
         content = content:sub(pos2+1,#content)
-        print(content)
     end
 
     for i=1,#libList[1] do
-        print(libList[1][i])
         local temp = io.open(libList[1][i],"r")
         local content = temp:read("a")
         table.insert(libList[2],content)
