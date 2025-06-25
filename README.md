@@ -20,6 +20,8 @@ First, I recommend making a DNS server, then the client, and then servers can be
 `initDns.lua` ona computer <br>
 now execute `initDns.lua` and the rest is done by the system <br>
 
+repo folder [click here](https://github.com/Redtech0inc/MCNet/tree/main/mcNet/dnsServer-Stuff)
+
 #### 📁 File Tree (DNS Server side Example)
 computer/<br>
 ├── dnsServer.lua<br>
