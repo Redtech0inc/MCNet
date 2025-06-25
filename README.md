@@ -20,7 +20,7 @@ first i would make a DNS server then the client and then servers can be added to
 `initDns.lua` ona computer <br>
 now execute `initDns.lua` and the rest is done by the system <br>
 
-#### file tree
+#### 📁 File Tree (DNS Server Example)
 computer/<br>
 ├── dnsServer.lua<br>
 └── initDns.lua ← Execute this file to start the system
@@ -32,6 +32,14 @@ now put the `mcNet-client.lua` file in that and execute it once<br>
 it is going to give you an error but thats normal now enter the newly created libs folder (my example `internet/libs`)
 and drop the `logo.nfp` and the `openUILib.lua` file in there
 then go back and execute `mcNet-cleint.lua` again now it should work!
+
+#### 📁 File Tree (Client Side Example)
+
+internet/  
+├── mcNet-client.lua  ← Execute this file first  
+├── libs/  
+│   ├── logo.nfp  
+│   └── openUILib.lua
 
 ### setup server
 so to set up a server enter any computer with ender/wireless(not advised) modem<br>
