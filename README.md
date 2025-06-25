@@ -6,7 +6,7 @@ i know this isn't much but i just threw this repo together in like a few second 
 
 ope you'll enjoy ;) !
 
-##coming soon/mybe today
+## coming soon/mybe today
 
 <list> reload feature
 <list> better comments for coders
