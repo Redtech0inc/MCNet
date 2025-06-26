@@ -1,14 +1,40 @@
+----------------------configurations----------------------
+
+-- if this is true will show more in depth system out puts where ever i need them! (disclaimer: will not be pretty to look at!)
+local debugMode = false --default: false
+-- this is the minimum time that as to elapse between page loop begin and end iff it goes beneath that a time out will be set
+local minElapsedTime = 0.5 --default: 0.5
+--this is the length of the timeout mentioned above
+local errTimeout = 2 --default: 2
+
+----------------------------------------------------------
+
+
 local path = shell.getRunningProgram()
 local pathDiv = string.find(path,"/",nil,true)
 path = string.sub(path,1,pathDiv)
 
+term.write("path root: ")
 print(path)
-print()
+if debugMode then sleep(1) end
 
 fs.makeDir(path.."pages")
 fs.makeDir(path.."libs")
 
 os.loadAPI(path.."libs/openUILib.lua")
+
+local function consolePrintLine(self, line)
+    -- Put the line on the screen at current cursorY
+    for i = 1, #line do
+        local char = line:sub(i,i)
+        self.screen[i][self.cursorY] = {
+            char,
+            self.currentTextColor,
+            self.currentBackgroundColor
+        }
+    end
+    return true
+end
 
 Stack = {}
 Stack.__index = Stack
@@ -57,7 +83,7 @@ function Console:init(x,y,width,height)
     obj.screen={}
     for i=1,width do
         obj.screen[i]={}
-        for j=1,height do
+        for j=1,height+1 do
             obj.screen[i][j] = {}
             obj.screen[i][j][1] = nil
             obj.screen[i][j][2] = colors.white
@@ -102,6 +128,10 @@ function Console:setCursorPos(x,y)
 
     self.cursorX = x
     self.cursorY = y
+end
+
+function Console:getCursorPos()
+    return self.cursorX ,self.cursorY
 end
 
 function Console:setTextColor(color,posX,posY)
@@ -152,6 +182,31 @@ function Console:setBackgroundColor(color,posX,posY)
     end
 end
 
+function Console:getTextColor()
+    return self.currentTextColor
+end
+
+function Console:getBackgroundColor()
+    return self.currentBackgroundColor
+end
+
+function Console:scroll(n)
+    n = n or 1
+    n = math.abs(n)
+    for _ = 1,n do
+        for i = 1,#self.screen do
+            for j = 1,#self.screen[i] do
+                if self.screen[i][j-1] then
+                    self.screen[i][j-1] = self.screen[i][j]
+                end
+            end
+        end
+        for i=1,#self.screen do
+            self.screen[i][#self.screen[i]] = {nil,self.currentTextColor,self.currentBackgroundColor}
+        end
+    end
+end
+
 function Console:write(str)
     local moveX = 0
     for i=1,#str do
@@ -169,17 +224,30 @@ function Console:write(str)
 end
 
 function Console:print(str)
-    for i=1,#str do
-        if self.screen[(self.cursorX-1)+i] then
-            if self.screen[(self.cursorX-1)+i][self.cursorY] then
-                self.screen[(self.cursorX-1)+i][self.cursorY][1] = str:sub(i,i)
-                self.screen[(self.cursorX-1)+i][self.cursorY][2] = self.currentTextColor
-                self.screen[(self.cursorX-1)+i][self.cursorY][3] = self.currentBackgroundColor
+    local line = ""
+    for word in str:gmatch("%S+%s*") do
+        if #line + #word > #self.screen then
+            consolePrintLine(self, line)
+            self.cursorY = self.cursorY + 1
+            if self.cursorY > #self.screen[1] then
+                self:scroll()
+                self.cursorY = #self.screen[1]
             end
+            line = word
+        else
+            line = line .. word
         end
     end
-    self.cursorX = 1
-    self.cursorY = self.cursorY + 1
+
+    if #line > 0 then
+        consolePrintLine(self, line)
+        self.cursorY = self.cursorY + 1
+        if self.cursorY > #self.screen[1] then
+            self:scroll()
+            self.cursorY = #self.screen[1]
+        end
+    end
+
     self:display()
 end
 
@@ -282,6 +350,23 @@ local function receive(timeout)
     return senderID,message
 end
 
+local function printDebug(str,clear)
+    if debugMode then
+        local currentTextColor = term.getTextColor()
+        local currentBackgroundColor = term.getBackgroundColor()
+        term.setTextColor(colors.white)
+        term.setBackgroundColor(colors.black)
+        if clear then
+            term.clear()
+            term.setCursorPos(1,1)
+        end
+        print(str)
+        sleep(0.5)
+        term.setTextColor(currentTextColor)
+        term.setBackgroundColor(currentBackgroundColor)
+    end 
+end
+
 gatherColorValues()
 
 local sizeX,sizeY = term.getSize()
@@ -290,7 +375,10 @@ openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local pageStack = Stack:init()
 
-local active = true
+printDebug("initiating start UI...",true)
+openUILib.setPaletteColor(colors.gray,"#444444")
+openUILib.setPaletteColor(colors.lightGray,"#333333")
+openUILib.setPaletteColor(colors.white,"#ffffff")
 
 local defaultBackground = {}
 for i=0,sizeX do
@@ -299,11 +387,6 @@ for i=0,sizeX do
         defaultBackground[i][j] = colors.gray
     end
 end
-
-openUILib.setPaletteColor(colors.gray,"#444444")
-openUILib.setPaletteColor(colors.lightGray,"#333333")
-openUILib.setPaletteColor(colors.white,"#ffffff")
-
 local startPageImage = openUILib.loadImage(path.."libs/logo.nfp")
 
 local searchBarYPos = findCenter(sizeY,1)
@@ -316,6 +399,8 @@ local searchBar = openUILib.hologram:addHologram("Loading...",{white=1},{lightGr
 
 openUILib.setBackgroundImage(defaultBackground)
 openUILib.render()
+
+local active = true
 
 peripheral.find("modem",function (name,_)
     if peripheral.call(name,"isWireless") then
@@ -332,10 +417,12 @@ searchBar:changeHologramData(nil,nil,nil,2)
 
 local function findAddress(search)
     for _,DNSServerIP in pairs(dnsServers) do
+        printDebug("calling DNS IP: "..DNSServerIP)
         rednet.send(DNSServerIP,{message="get server ip",serverName=search})
         local _, replie = rednet.receive(2)
-        if not  replie then replie={} end
+        if not  replie then printDebug("2 seconds elapsed did not get response! (timeout error)") replie={} end
         if type(replie.message) == "number" then
+            printDebug("found! IP: "..replie.message)
             return replie.message
         end
     end
@@ -358,6 +445,10 @@ local function downloadLibs(libList)
 
     for i=1,#libList[1] do
         if libList[1][i] ~= "libs/openUILib.lua" then
+            printDebug("importing: "..libList[1][i])
+            if debugMode then print("lib content:") end
+            printDebug(libList[2][i])
+
             table.insert(activeLibs,path..libList[1][i])
 
             local temp = io.open(path..libList[1][i],"w")
@@ -369,13 +460,22 @@ end
 
 local function unloadLibs()
     for i=1,#activeLibs do
-        os.unloadAPI(activeLibs[i])
+        local libPath = string.gsub(activeLibs[i],".lua","")
+        local lasLibPathDiv = 0
+        while string.find(libPath,"/",lasLibPathDiv+1,true) do
+            local libPathDiv = string.find(libPath,"/",lasLibPathDiv+1,true)
+            if libPathDiv then lasLibPathDiv = libPathDiv end
+        end
+        local libName = string.sub(libPath,lasLibPathDiv+1,#libPath)
+        printDebug("unloading: "..libName)
+
+        _G[libName] = nil
         fs.delete(activeLibs[i])
         table.remove(activeLibs,i)
     end
 end
 
-local function hud(homeButton,backButton,exitButton)
+local function hud(homeButton,backButton,reloadButton,exitButton)
     local output = nil
     while output == nil do
         openUILib.render()
@@ -384,6 +484,8 @@ local function hud(homeButton,backButton,exitButton)
             output = "home"
         elseif openUILib.isCollidingRaw(x,y,backButton) then
             output = "back"
+        elseif openUILib.isCollidingRaw(x,y,reloadButton) then
+            output = "reload"
         elseif openUILib.isCollidingRaw(x,y,exitButton) then
             output = "exit"
         end
@@ -393,22 +495,29 @@ local function hud(homeButton,backButton,exitButton)
     return output
 end
 
+local function initHudButtons()
+    openUILib.hologram:addHologram(string.rep(" ",sizeX),nil,{lightGray=1},nil,1,1,nil,false)
+    local debugText
+    if debugMode then debugText = openUILib.hologram:addHologram("Measuring...",{white=1},{lightGray=1},nil,7,1) end
+
+    local homeButton = openUILib.hologram:addHologram("H",{black=1},{white=1},nil,1,1)
+    local backButton = openUILib.hologram:addHologram("\027",{black=1},{white=1},nil,3,1)
+    local reloadButton = openUILib.hologram:addHologram("@",{black=1},{white=1},nil,5,1)
+    local exitButton = openUILib.hologram:addHologram("x",{red=1},{white=1},nil,sizeX,1)
+
+    return debugText, homeButton, backButton, reloadButton, exitButton
+end
+
 local function talkWithServer(serverIP)
     rednet.send(serverIP,{message="connection test"})
-    local _,message=rednet.receive(2)
-    pageStack:push("connection test")
-    if message then
+    _,message = receive(2)
+    if message.content then
+        pageStack:push("connection test")
+
         openUILib.clearFrameWork()
         openUILib.setBackgroundImage({{}})
 
-        openUILib.hologram:addHologram(string.rep(" ",sizeX),nil,{lightGray=1},nil,1,1)
-        local homeButton = openUILib.hologram:addHologram("H",{black=1},{white=1},nil,1,1)
-        local backButton = openUILib.hologram:addHologram("\027",{black=1},{white=1},nil,3,1)
-        local exitButton = openUILib.hologram:addHologram("x",{red=1},{white=1},nil,sizeX,1)
-
-        _,message = receive(2)
-
-        if not (message.content) then return end
+        local debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
 
         downloadLibs(message.libs)
 
@@ -421,24 +530,60 @@ local function talkWithServer(serverIP)
         currentPage.init(path)
 
         local repeatLoop = true
-        local output,additionalReturnValue
+        local output,additionalReturnValue, elapsedTime1,elapsedTime2,elapsedTimeDifference, preElapsedTimeDifference
 
 
         while repeatLoop do
 
-            parallel.waitForAny(function() output = hud(homeButton,backButton,exitButton) end ,function() output,additionalReturnValue = currentPage.main(path) end)
+            parallel.waitForAny(function() output = hud(homeButton,backButton,reloadButton,exitButton) end ,function()
+                elapsedTime1 = os.clock()
+                output,additionalReturnValue = currentPage.main(path)
+                elapsedTime2 = os.clock()
+                elapsedTimeDifference = elapsedTime2 - elapsedTime1
+                if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
+                    local timeStr = tostring(elapsedTimeDifference)
+                    if #timeStr > 12 then
+                        timeStr = timeStr:sub(1, 9) .. "..."
+                    end
+                    debugText:changeHologramData("TLap:" .. timeStr .. "s")
+                    debugText:render()
+                end
+                if elapsedTimeDifference < minElapsedTime then
+                    local currentTextColor = systemOut:getTextColor()
+                    local currentX, currentY = systemOut:getCursorPos()
+
+                    systemOut:setCursorPos(1, 1)
+                    systemOut:setTextColor(colors.red)
+                    systemOut:print("ERR: Code executes too fast! timeout for "..errTimeout.." second(s)...")
+                    systemOut:setCursorPos(currentX, currentY)
+                    systemOut:setTextColor(currentTextColor)
+
+                    sleep(errTimeout)
+                else
+                    preElapsedTimeDifference = elapsedTimeDifference
+                end
+            end)
 
             if output == -1 then
                 repeatLoop = false
             elseif output == 1 then
-                os.unloadAPI(path.."pages/currentPage.lua")
-                unloadLibs()
-
+                if debugMode then term.clear() term.setCursorPos(1,1) print("loading new page") sleep(0.5) end
                 rednet.send(serverIP,{message = additionalReturnValue})
-                local _,message = receive(2)
-                if message.content then
+                _,message = receive(2)
+                printDebug("received:"..textutils.serialise(message,{compact=true})) sleep(0.5)
+                if message.content ~= nil then
+                    printDebug("success!")
+                    _G.currentPage = nil
+                    unloadLibs()
+                    openUILib.clearFrameWork()
+
+                    debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons() -- re add hud buttons
 
                     pageStack:push(additionalReturnValue)
+
+                    systemOut:setTextColor(colors.white)
+                    systemOut:setBackgroundColor(colors.black)
+                    systemOut:clear()
 
                     downloadLibs(message.libs)
 
@@ -450,14 +595,24 @@ local function talkWithServer(serverIP)
                     currentPage.init(path)
                 end
             elseif output == "back" then
+                printDebug("back",true)
                 if pageStack:size() > 1 then
-                    os.unloadAPI(path.."pages/currentPage.lua")
-                    unloadLibs()
-
                     rednet.send(serverIP,{message = pageStack:peak()})
-                    local _,message = receive(2)
-                    if message.content then
+                    _,message = receive(2)
+                    printDebug("received:"..textutils.serialise(message,{compact=true}))
+                    if message.content ~= nil then
+                        printDebug("success!")
+                        _G.currentPage = nil
+                        unloadLibs()
+                        openUILib.clearFrameWork()
+
+                        debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
+
                         pageStack:pop()
+
+                        systemOut:setTextColor(colors.white)
+                        systemOut:setBackgroundColor(colors.black)
+                        systemOut:clear()
 
                         downloadLibs(message.libs)
 
@@ -471,9 +626,37 @@ local function talkWithServer(serverIP)
                 else
                     repeatLoop = false
                 end
+            elseif output == "reload" then
+                printDebug("reload",true)
+                rednet.send(serverIP,{message = pageStack:peak()})
+                _,message = receive(2)
+                printDebug("received:"..textutils.serialise(message,{compact=true}))
+                if message.content ~= nil then
+                    printDebug("success!")
+                    _G.currentPage = nil
+                    unloadLibs()
+                    openUILib.clearFrameWork()
+
+                    debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
+
+                    systemOut:setTextColor(colors.white)
+                    systemOut:setBackgroundColor(colors.black)
+                    systemOut:clear()
+
+                    downloadLibs(message.libs)
+
+                    local temp = io.open(path.."pages/currentPage.lua","w")
+                    temp:write(message.content)
+                    temp:close()
+
+                    os.loadAPI(path.."pages/currentPage.lua")
+                    currentPage.init(path)
+                end
             elseif output == "home"  then
+                printDebug("home",true)
                 repeatLoop = false
             elseif output == "exit" then
+                printDebug("exit",true)
                 repeatLoop = false
                 active = false
             else
@@ -482,7 +665,7 @@ local function talkWithServer(serverIP)
         end
 
         unloadLibs()
-        os.unloadAPI(path.."pages/currentPage.lua")
+        _G.currentPage = nil
 
         fs.delete(path.."pages/currentPage.lua")
 
@@ -502,6 +685,8 @@ local function talkWithServer(serverIP)
     end
 end
 
+
+-- if you are searching start ui initiation then you'll have to go the the openUILib and systemOut init functions
 while active do
     openUILib.setPaletteColor(colors.gray,"#444444")
     openUILib.setPaletteColor(colors.lightGray,"#333333")
@@ -522,16 +707,18 @@ while active do
         searchBar:changeHologramData("")
         term.setBackgroundColor(colors.black)
         term.clear()
+        term.setCursorPos(1,1)
         serverIP = findAddress(search)
     end
 
     if serverIP then
+        term.clear()
+        term.setCursorPos(1,1)
         talkWithServer(serverIP)
     end
 end
 
 _G.systemOut = nil
-_G.currentPage = nil
 
 rednet.close(modemSide)
 openUILib.quit()
