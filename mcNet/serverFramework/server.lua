@@ -14,20 +14,12 @@ local server = serverLib.Server:open("www.example.com")
 local function main()
     while true do
         local SenderID, message = server:receive()
+        print("received message: "..tostring(message.message))
         if message.message == "connection test" then
-            rednet.send(SenderID,{message="success"}) --anything but nil will do
-            sleep(0.1)
             serverLib.sendPage(SenderID,path.."pages/main.lua") --loads main page and sends it to the client (note to self: lib importing!)
         end
     end
 end
 
---[[print(path.."pages/main.lua")
-
-local temp = io.open("pages/main.lua","r")
-local content = temp:read("a")
-temp:close()
-serverLib.sendLibs(4,content)]]
---run server and deactivator
 parallel.waitForAny(main,serverLib.deactivator)
 server:close()
