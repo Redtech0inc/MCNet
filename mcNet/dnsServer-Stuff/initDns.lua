@@ -1,3 +1,11 @@
+local function findCenter(len1,len2)
+    local sizeX,_ = term.getSize()
+    len1 = len1 or sizeX
+    len2 = len2 or 0
+
+    return math.floor((len1-len2)/2)
+end
+
 local function loading_bar(x,y,load_len,load_char,max_base,max_deci,done_message,wait_time)
     term.setCursorPos(x,y)
     for _= 1,load_len do
@@ -21,18 +29,10 @@ local function loading_bar(x,y,load_len,load_char,max_base,max_deci,done_message
     end
     term.setBackgroundColor(colors.black)
     term.setTextColor(colors.green)
-    term.setCursorPos(x,(y+1))
+    term.setCursorPos(findCenter(nil,#done_message),(y+1))
     print(done_message)
     sleep(wait_time)
     term.setTextColor(colors.white)
-end
-
-local function findCenter(len1,len2)
-    local sizeX,_ = term.getSize()
-    len1 = len1 or sizeX
-    len2 = len2 or 0
-
-    return math.floor((len1-len2)/2)
 end
 
 local function getFileName()
@@ -54,7 +54,7 @@ term.setCursorPos(findCenter(nil,19),findCenter(sizeY,2))
 term.setTextColor(colors.blue)
 print("Starting DNS Server")
 term.setTextColor(colors.white)
-loading_bar(findCenter(nil,19),findCenter(sizeY),19," ",1,9,"Done Loading DNS Server!",2)
+loading_bar(findCenter(nil,19),findCenter(sizeY),19," ",0,5,"Done Loading DNS Server!",2)
 
 local dnsTabID = multishell.launch(_ENV,"dnsServer.lua")
 multishell.setTitle(dnsTabID,"DNS Server")
