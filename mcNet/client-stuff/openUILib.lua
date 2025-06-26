@@ -1003,6 +1003,9 @@ end
 function sprite:addSprite(img,priority,x,y,screenBound)
     local spriteData = {}
 
+    if type(x) ~= "number" then x = 1 end
+    if type(y) ~= "number" then y = 1 end
+
     if screenBound == nil then screenBound = true end
     spriteData.screenBound = toboolean(screenBound)
 
@@ -1051,6 +1054,9 @@ end
 ---@return table hologramObject is the created hologram object
 function hologram:addHologram(text,textColor,textBackgroundColor,priority,x,y,dynamic,wrapped,screenBound)
     local hologramData= {}
+
+    if type(x) ~= "number" then x = 1 end
+    if type(y) ~= "number" then y = 1 end
 
     if dynamic == nil then dynamic = true end
 
