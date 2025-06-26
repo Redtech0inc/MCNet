@@ -85,6 +85,7 @@ function Server:close()
     term.setTextColor(colors.red)
     print("Server is now Offline")
     term.setTextColor(colors.white)
+    sleep(1)
 
     setmetatable(self, {
         __index = function()
