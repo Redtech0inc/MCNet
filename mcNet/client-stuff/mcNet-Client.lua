@@ -6,6 +6,8 @@ local debugMode = false --default: false
 local minElapsedTime = 0.5 --default: 0.5
 --this is the length of the timeout mentioned above
 local errTimeout = 2 --default: 2
+--this is the time that a disconnect function is allowed to run for in seconds can't be lower than 60
+local disconnectTime = 600 --default: 600
 
 ----------------------------------------------------------
 
@@ -13,6 +15,8 @@ local errTimeout = 2 --default: 2
 local path = shell.getRunningProgram()
 local pathDiv = string.find(path,"/",nil,true)
 path = string.sub(path,1,pathDiv)
+
+if disconnectTime < 60 then disconnectTime = 60 end
 
 term.write("path root: ")
 print(path)
@@ -69,10 +73,14 @@ function Stack:size()
     return #self.list
 end
 
-Console = {}
-Console.__index = Console
+function Stack:clear()
+    self.list = {}
+end
 
-function Console:init(x,y,width,height)
+_G.Console = {}
+_G.Console.__index = _G.Console
+
+function _G.Console:init(x,y,width,height)
     x = x or 1
     y = y or 2
     local termX, termY = term.getSize()
@@ -105,7 +113,7 @@ function Console:init(x,y,width,height)
     return obj
 end
 
-function Console:display()
+function _G.Console:display()
     local currentTextColor = term.getTextColor()
     local currentBackgroundColor = term.getBackgroundColor()
     for i=1,#self.screen do
@@ -122,7 +130,7 @@ function Console:display()
     term.setBackgroundColor(currentBackgroundColor)
 end
 
-function Console:setCursorPos(x,y)
+function _G.Console:setCursorPos(x,y)
     x = x or 1
     y = y or 1
 
@@ -130,11 +138,11 @@ function Console:setCursorPos(x,y)
     self.cursorY = y
 end
 
-function Console:getCursorPos()
+function _G.Console:getCursorPos()
     return self.cursorX ,self.cursorY
 end
 
-function Console:setTextColor(color,posX,posY)
+function _G.Console:setTextColor(color,posX,posY)
     if posX then
         for i=1,#self.screen[posX] do
             for _=1,#self.screen[posX][i] do
@@ -154,7 +162,7 @@ function Console:setTextColor(color,posX,posY)
     end
 end
 
-function Console:setBackgroundColor(color,posX,posY)
+function _G.Console:setBackgroundColor(color,posX,posY)
     if posX then
         for i=1,#self.screen[posX] do
             if self.screen[posX][i] then
@@ -182,15 +190,15 @@ function Console:setBackgroundColor(color,posX,posY)
     end
 end
 
-function Console:getTextColor()
+function _G.Console:getTextColor()
     return self.currentTextColor
 end
 
-function Console:getBackgroundColor()
+function _G.Console:getBackgroundColor()
     return self.currentBackgroundColor
 end
 
-function Console:scroll(n)
+function _G.Console:scroll(n)
     n = n or 1
     n = math.abs(n)
     for _ = 1,n do
@@ -207,7 +215,8 @@ function Console:scroll(n)
     end
 end
 
-function Console:write(str)
+function _G.Console:write(str)
+    str = tostring(str)
     local moveX = 0
     for i=1,#str do
         if self.screen[(self.cursorX-1)+i] then
@@ -223,7 +232,8 @@ function Console:write(str)
     self:display()
 end
 
-function Console:print(str)
+function _G.Console:print(str)
+    str = tostring(str)
     local line = ""
     for word in str:gmatch("%S+%s*") do
         if #line + #word > #self.screen then
@@ -251,7 +261,7 @@ function Console:print(str)
     self:display()
 end
 
-function Console:clear(posX,posY)
+function _G.Console:clear(posX,posY)
     if posX then
         for i=1,#self.screen[posX] do
             if self.screen[posX] then
@@ -374,6 +384,7 @@ local sizeX,sizeY = term.getSize()
 openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local pageStack = Stack:init()
+local backPageStack = Stack:init()
 
 printDebug("initiating start UI...",true)
 openUILib.setPaletteColor(colors.gray,"#444444")
@@ -411,7 +422,26 @@ if not modemSide then error("could not find ender modem please in stall one!") e
 
 rednet.open(modemSide)
 
-local dnsServers = {rednet.lookup("DNSServer")}
+local dnsServers,answer = {}, true
+while #dnsServers == 0 and answer do
+    dnsServers = {rednet.lookup("DNSServer")}
+
+    if #dnsServers == 0 then
+        searchBar:changeHologramData(nil,nil,nil,findCenter(nil,24))
+        answer = searchBar:read(2,"no dns try again? y/n:")
+
+        if string.find(answer,"y",nil,true) then
+            answer = true
+        else
+            answer = false
+        end
+        searchBar:changeHologramData("loading...",nil,nil,findCenter(nil,10))
+        openUILib.render()
+    end
+end
+printDebug("dns servers found: "..#dnsServers,true)
+printDebug("server list:")
+printDebug(textutils.serialise(dnsServers,{compact = true}))
 
 searchBar:changeHologramData(nil,nil,nil,2)
 
@@ -479,6 +509,9 @@ local function hud(homeButton,backButton,reloadButton,exitButton)
     local output = nil
     while output == nil do
         openUILib.render()
+        if currentPage.hubUsed then
+            parallel.waitForAny(function() currentPage.hubUsed(path) end,function() sleep(disconnectTime) end)
+        end
         local _,_,x,y = os.pullEvent("mouse_click")
         if openUILib.isCollidingRaw(x,y,homeButton) then
             output = "home"
@@ -511,7 +544,9 @@ end
 local function talkWithServer(serverIP)
     rednet.send(serverIP,{message="connection test"})
     _,message = receive(2)
+    printDebug("received:"..textutils.serialise(message,{compact=true}))
     if message.content then
+        printDebug("success!")
         pageStack:push("connection test")
 
         openUILib.clearFrameWork()
@@ -542,8 +577,8 @@ local function talkWithServer(serverIP)
                 elapsedTimeDifference = elapsedTime2 - elapsedTime1
                 if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
                     local timeStr = tostring(elapsedTimeDifference)
-                    if #timeStr > 12 then
-                        timeStr = timeStr:sub(1, 9) .. "..."
+                    if #timeStr > (sizeX-2) then
+                        timeStr = timeStr:sub(1, sizeX-5) .. "..."
                     end
                     debugText:changeHologramData("TLap:" .. timeStr .. "s")
                     debugText:render()
@@ -564,9 +599,7 @@ local function talkWithServer(serverIP)
                 end
             end)
 
-            if output == -1 then
-                repeatLoop = false
-            elseif output == 1 then
+            if output == 2 then
                 if debugMode then term.clear() term.setCursorPos(1,1) print("loading new page") sleep(0.5) end
                 rednet.send(serverIP,{message = additionalReturnValue})
                 _,message = receive(2)
@@ -594,7 +627,7 @@ local function talkWithServer(serverIP)
                     os.loadAPI(path.."pages/currentPage.lua")
                     currentPage.init(path)
                 end
-            elseif output == "back" then
+            elseif output == "back" or output == -1 then
                 printDebug("back",true)
                 if pageStack:size() > 1 then
                     rednet.send(serverIP,{message = pageStack:peak()})
@@ -626,7 +659,7 @@ local function talkWithServer(serverIP)
                 else
                     repeatLoop = false
                 end
-            elseif output == "reload" then
+            elseif output == "reload" or output == 1 then
                 printDebug("reload",true)
                 rednet.send(serverIP,{message = pageStack:peak()})
                 _,message = receive(2)
@@ -652,22 +685,26 @@ local function talkWithServer(serverIP)
                     os.loadAPI(path.."pages/currentPage.lua")
                     currentPage.init(path)
                 end
-            elseif output == "home"  then
+            elseif output == "home" or output == -2 then
                 printDebug("home",true)
                 repeatLoop = false
-            elseif output == "exit" then
+            elseif output == "exit" or output == -3 then
                 printDebug("exit",true)
                 repeatLoop = false
                 active = false
-            else
-                sleep(0.1)
             end
+        end
+
+        if currentPage.disconnect then
+            parallel.waitForAny(function() currentPage.disconnect(path) end,function() sleep(disconnectTime) end)
         end
 
         unloadLibs()
         _G.currentPage = nil
 
         fs.delete(path.."pages/currentPage.lua")
+
+        pageStack:clear()
 
         systemOut:setTextColor(colors.white)
         systemOut:setBackgroundColor(colors.black)
@@ -686,13 +723,28 @@ local function talkWithServer(serverIP)
 end
 
 
+local function  homePageHud(exitButton)
+    local output = nil
+    while output == nil do
+        openUILib.render()
+        local _,_,x,y = os.pullEvent("mouse_click")
+        if openUILib.isCollidingRaw(x,y,exitButton) then
+            output = "exit"
+        end
+    end
+    return output
+end
+
 -- if you are searching start ui initiation then you'll have to go the the openUILib and systemOut init functions
-while active do
+while active and #dnsServers > 0 do
     openUILib.setPaletteColor(colors.gray,"#444444")
     openUILib.setPaletteColor(colors.lightGray,"#333333")
     openUILib.setPaletteColor(colors.white,"#ffffff")
-    local serverIP
-    local search = searchForAddress()
+    local serverIP, search, exitButton
+    if not exitButton then
+        exitButton = openUILib.hologram:addHologram("x",{red=1},{white=1},nil,sizeX,1)
+    end
+    parallel.waitForAny(function() search = searchForAddress() end, function() search = homePageHud(exitButton) term.setTextColor(colors.white) term.setBackgroundColor(colors.black) end)
 
     if search:lower() == "exit" then
         active = false
@@ -719,6 +771,7 @@ while active do
 end
 
 _G.systemOut = nil
+_G.Console = nil
 
 rednet.close(modemSide)
 openUILib.quit()
