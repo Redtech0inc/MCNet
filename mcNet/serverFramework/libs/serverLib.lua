@@ -2,7 +2,7 @@
 local function getLibs(content)
     local _,pos1 = string.find(content,"--libs",nil,true)
     local pos2 = string.find(content,"--/libs",nil,true)
-
+    if not (pos1 and pos2) then return {{},{}} end
     local content = string.sub(content,pos1+1,pos2-1)
 
     local libList={}
@@ -26,6 +26,7 @@ local function getLibs(content)
     return libList
 end
 
+local showExitMessage
 
 --SERVER FUNCTIONS
 Server = {}
@@ -45,8 +46,43 @@ function Server:open(name)
     if not obj.side then error("could not find rednet modem!") end
 
     rednet.open(obj.side)
+    obj.dnsServers = {}
+    local retries = 0
 
-    obj.dnsServers = {rednet.lookup("DNSServer")}
+    local function getDNS()
+            while #obj.dnsServers == 0 do
+            obj.dnsServers = {rednet.lookup("DNSServer")}
+            if #obj.dnsServers == 0 then
+                retries = retries + 1
+                print("could not find any retrying... (retry:"..retries..")")
+            end
+        end
+    end 
+
+    local function exitDNSloop()
+        while true do
+            _, key, _ = os.pullEvent("key")
+            if key == keys.backspace then
+                return
+            end
+        end
+    end
+
+    print("searching DNS Server(s)...")
+    print("enter backspace to stop search!")
+    parallel.waitForAny(getDNS,exitDNSloop)
+    print("Found "..#obj.dnsServers.." DNS Server(s)")
+
+    if #obj.dnsServers == 0 then
+        print("no DNS server available")
+        sleep(0.5)
+        print("closing rednet port")
+        rednet.close(modemSide)
+        sleep(1)
+        print("exiting program: returning nil")
+        sleep(1)
+        return nil
+    end
 
     for i=1,#obj.dnsServers do
         local dnsIp = obj.dnsServers[i]
