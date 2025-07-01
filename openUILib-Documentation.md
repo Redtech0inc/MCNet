@@ -1,5 +1,5 @@
 # DISCLAIMER
-this is the same library as the TDGameLib qhich was made for 2D game development so the commands are the same but use openUILib. instead of TDGameLib.
+this is the same library as the TDGameLib which was made for 2D game development so the commands are the same but use openUILib. instead of TDGameLib.
 this has to do with the fact that i madethis library before mcNet and i find it hady to use when making rendered scripts
 
 for all the coding nerds thhe only difference is in the render function where i added one more line of code but that changes nothing about how it's used!
