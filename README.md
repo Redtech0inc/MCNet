@@ -70,6 +70,7 @@ server/
 ## coming soon/maybe today
 
 <li> better comments for coders
+<li> api documentation
 <li> back arrow button
 
 ## disclaimer
