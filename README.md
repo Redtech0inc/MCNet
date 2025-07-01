@@ -76,5 +76,5 @@ server/
 <li> forward arrow button
 
 ## disclaimer
-this is still in beta so please don't rage or insult for bad / not optimised code
+this is still in beta so please don't rage or insult for bad / not optimized code
 and also i know i used os.loadAPI a LOT but idc bc there a places in this mess where os.loadAPI is the only option if you have a better one then just tell me how to EXACTLY improve it
