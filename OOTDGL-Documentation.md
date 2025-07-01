@@ -1,3 +1,9 @@
+# DISCLAIMER
+this is the same library as the openUILib so the commands are the same but sue openUILib. instead of TDGameLib.
+this has to do with the fact that i madethis library before mcNet and i find it hady to use when making rendered scripts
+
+for all the coding nerds thhe only difference is in the render function where i added one more line of code but that changes nothing about how it's used!
+
 # About the Object based TDGameLib
 
 ## Info
