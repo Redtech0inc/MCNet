@@ -1,6 +1,6 @@
 # MCNet
 ## about
-This is the official repo for the MCNet Project Lua code for CC-Tweaked
+This is the official [insert website name here] repo for the MCNet Project Lua code for CC-Tweaked
 
 i know this isn't much but i just threw this repo together in like a few second so please don't be mad about that srry
 
@@ -71,7 +71,7 @@ server/
 
 <li> better comments for coders
 <li> api documentation
-<li> back arrow button
+<li> forward arrow button
 
 ## disclaimer
 this is still in beta so please don't rage or insult for bad / not optimised code
