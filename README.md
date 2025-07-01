@@ -12,7 +12,7 @@ hope you'll enjoy ;) !
 
 ## how to set up
 
-tho if you are using the installer from the [pinestore page](https://pinestore.cc/projects/153/mcnet) it should set up the system automatically<br>
+if you are using the installer from the [pinestore page](https://pinestore.cc/projects/153/mcnet) it should set up the system automatically<br>
 
 First, I recommend making a DNS server, then the client, and then servers can be added to the network!<br>
 
