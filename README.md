@@ -1,6 +1,6 @@
 # MCNet
 ## about
-This is the official repo for the MCNet Project Lua code for CC-Tweaked
+This is the official pine repo for the MCNet Project Lua code for CC-Tweaked
 
 i know this isn't much but i just threw this repo together in like a few second so please don't be mad about that srry
 
@@ -49,7 +49,7 @@ internet/
 ### setup server
 so to set up a server enter any computer with ender/wireless(not advised) modem<br>
 now instal `server.lua` this is your server framework (which you can edit)<br>
-you will also have to open a folder to hold all your "pages" and a folder thta MUST be named `libs` this is where custom librtaries and the server Library will sit<br>
+you will also have to open a folder to hold all your "pages" and a folder that MUST be named `libs` this is where custom librtaries and the server Library will sit<br>
 now as already told put `serverLib.lua` in the libs folder!
 
 repo folders:<br>
@@ -69,9 +69,9 @@ server/
 
 ## coming soon/maybe today
 
-<li> reload feature
 <li> better comments for coders
+<li> back arrow button
 
 ## disclaimer
-this is still in beta so please send don't rage or insult for bad / not optimised code
+this is still in beta so please don't rage or insult for bad / not optimised code
 and also i know i used os.loadAPI a LOT but idc bc there a places in this mess where os.loadAPI is the only option if you have a better one then just tell me how to EXACTLY improve it
