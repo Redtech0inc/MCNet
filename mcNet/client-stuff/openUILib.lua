@@ -1604,7 +1604,5 @@ render=function()
         term.setBackgroundColor(currentBackgroundColor)
         term.setCursorPos(CurX, CurY)
     end
-    if systemOut then
-        systemOut:display()
-    end
+    if systemOut then systemOut:display() end
 end
