@@ -6,8 +6,8 @@ local debugMode = false --default: false
 local minElapsedTime = 0.5 --default: 0.5
 --this is the length of the timeout mentioned above
 local errTimeout = 2 --default: 2
---this is the time that a disconnect function is allowed to run for in seconds can't be lower than 60
-local disconnectTime = 600 --default: 600
+--this is the time that a once run page function is allowed to run for in seconds can't be lower than 60
+local funcTimeoutTime = 150 --default: 150 (2.5 min)
 
 ----------------------------------------------------------
 
@@ -16,7 +16,7 @@ local path = shell.getRunningProgram()
 local pathDiv = string.find(path,"/",nil,true)
 path = string.sub(path,1,pathDiv)
 
-if disconnectTime < 60 then disconnectTime = 60 end
+if funcTimeoutTime < 60 then funcTimeoutTime = 60 end
 
 term.write("path root: ")
 print(path)
@@ -450,8 +450,8 @@ local sizeX,sizeY = term.getSize()
 
 openUILib.init("mcNet")
 _G.systemOut = Console:init()
-local pageStack = Stack:init()
 local backPageStack = Stack:init()
+local forwardPageStack = Stack:init()
 local cookies = CookieHandle:loadCookies("cookies.txt")
 cookies:checkCookies()
 
@@ -575,18 +575,20 @@ local function unloadLibs()
     end
 end
 
-local function hud(homeButton,backButton,reloadButton,exitButton)
+local function hud(homeButton,backButton,forwardButton,reloadButton,exitButton)
     local output = nil
     while output == nil do
         openUILib.render()
         if currentPage.hubUsed then
-            parallel.waitForAny(function() currentPage.hubUsed(path) end,function() sleep(disconnectTime) end)
+            parallel.waitForAny(function() currentPage.hubUsed(path) end,function() sleep(funcTimeoutTime) end)
         end
         local _,_,x,y = os.pullEvent("mouse_click")
         if openUILib.isCollidingRaw(x,y,homeButton) then
             output = "home"
         elseif openUILib.isCollidingRaw(x,y,backButton) then
             output = "back"
+        elseif openUILib.isCollidingRaw(x,y,forwardButton) then
+            output = "forward"
         elseif openUILib.isCollidingRaw(x,y,reloadButton) then
             output = "reload"
         elseif openUILib.isCollidingRaw(x,y,exitButton) then
@@ -602,14 +604,15 @@ end
 local function initHudButtons()
     openUILib.hologram:addHologram(string.rep(" ",sizeX),nil,{lightGray=1},nil,1,1,nil,false)
     local debugText
-    if debugMode then debugText = openUILib.hologram:addHologram("Measuring...",{white=1},{lightGray=1},nil,7,1) end
+    if debugMode then debugText = openUILib.hologram:addHologram("Measuring...",{white=1},{lightGray=1},nil,8,1) end
 
     local homeButton = openUILib.hologram:addHologram("H",{black=1},{white=1},nil,1,1)
     local backButton = openUILib.hologram:addHologram("\027",{black=1},{white=1},nil,3,1)
-    local reloadButton = openUILib.hologram:addHologram("@",{black=1},{white=1},nil,5,1)
+    local forwardButton = openUILib.hologram:addHologram("\026",{black=1},{white=1},nil,4,1)
+    local reloadButton = openUILib.hologram:addHologram("@",{black=1},{white=1},nil,6,1)
     local exitButton = openUILib.hologram:addHologram("x",{red=1},{white=1},nil,sizeX,1)
 
-    return debugText, homeButton, backButton, reloadButton, exitButton
+    return debugText, homeButton, backButton, forwardButton, reloadButton, exitButton
 end
 
 local function talkWithServer(serverIP)
@@ -618,12 +621,12 @@ local function talkWithServer(serverIP)
     printDebug("received:"..textutils.serialise(message,{compact=true}))
     if message.content then
         printDebug("success!")
-        pageStack:push("connection test")
+        backPageStack:push("connection test")
 
         openUILib.clearFrameWork()
         openUILib.setBackgroundImage({{}})
 
-        local debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
+        local debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
 
         downloadLibs(message.libs)
 
@@ -633,7 +636,7 @@ local function talkWithServer(serverIP)
 
         os.loadAPI(path.."pages/currentPage.lua")
 
-        currentPage.init(path)
+        parallel.waitForAny(function() currentPage.init(path) end,function() sleep(funcTimeoutTime) end)
 
         local repeatLoop = true
         local output, additionalReturnValue, elapsedTime1, elapsedTime2, elapsedTimeDifference, preElapsedTimeDifference
@@ -641,15 +644,15 @@ local function talkWithServer(serverIP)
         local lastCookie = cookies:getCookie(search)
         while repeatLoop do
 
-            parallel.waitForAny(function() output = hud(homeButton,backButton,reloadButton,exitButton) end ,function()
+            parallel.waitForAny(function() output = hud(homeButton,backButton,forwardButton,reloadButton,exitButton) end ,function()
                 elapsedTime1 = os.clock()
                 output,additionalReturnValue = currentPage.main(path,lastCookie)
                 elapsedTime2 = os.clock()
                 elapsedTimeDifference = elapsedTime2 - elapsedTime1
                 if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
                     local timeStr = tostring(elapsedTimeDifference)
-                    if #timeStr > (sizeX-2) then
-                        timeStr = timeStr:sub(1, sizeX-5) .. "..."
+                    if #timeStr > (sizeX-4) then
+                        timeStr = timeStr:sub(1, sizeX-7) .. "..."
                     end
                     debugText:changeHologramData("TLap:" .. timeStr .. "s")
                     debugText:render()
@@ -677,13 +680,14 @@ local function talkWithServer(serverIP)
                 printDebug("received:"..textutils.serialise(message,{compact=true})) sleep(0.5)
                 if message.content ~= nil then
                     printDebug("success!")
+                    forwardPageStack:clear()
                     _G.currentPage = nil
                     unloadLibs()
                     openUILib.clearFrameWork()
 
-                    debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons() -- re add hud buttons
+                    debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons() -- re add hud buttons
 
-                    pageStack:push(additionalReturnValue)
+                    backPageStack:push(additionalReturnValue)
 
                     systemOut:setTextColor(colors.white)
                     systemOut:setBackgroundColor(colors.black)
@@ -696,7 +700,7 @@ local function talkWithServer(serverIP)
                     temp:close()
 
                     os.loadAPI(path.."pages/currentPage.lua")
-                    currentPage.init(path)
+                    parallel.waitForAny(function() currentPage.init(path) end,function() sleep(funcTimeoutTime) end)
                 end
             elseif output == 3 then
                 rednet.send(serverIP,additionalReturnValue)
@@ -710,8 +714,8 @@ local function talkWithServer(serverIP)
                 end
             elseif output == "back" or output == -1 then
                 printDebug("back",true)
-                if pageStack:size() > 1 then
-                    rednet.send(serverIP,{message = pageStack:peak()})
+                if backPageStack:size() > 1 then
+                    rednet.send(serverIP,{message = backPageStack:peak()})
                     _,message = receive(2)
                     printDebug("received:"..textutils.serialise(message,{compact=true}))
                     if message.content ~= nil then
@@ -720,9 +724,9 @@ local function talkWithServer(serverIP)
                         unloadLibs()
                         openUILib.clearFrameWork()
 
-                        debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
+                        debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
 
-                        pageStack:pop()
+                        forwardPageStack:push(backPageStack:pop())
 
                         systemOut:setTextColor(colors.white)
                         systemOut:setBackgroundColor(colors.black)
@@ -735,14 +739,43 @@ local function talkWithServer(serverIP)
                         temp:close()
 
                         os.loadAPI(path.."pages/currentPage.lua")
-                        currentPage.init(path)
+                        parallel.waitForAny(function() currentPage.init(path) end,function() sleep(funcTimeoutTime) end)
                     end
                 else
                     repeatLoop = false
                 end
+            elseif output == "forward" then
+                printDebug("forward",true)
+                if forwardPageStack:size() > 0 then
+                    rednet.send(serverIP,{message= forwardPageStack:peak()})
+                    _,message = receive(2)
+                    if message.content ~= nil then
+                        printDebug("success!")
+                        _G.currentPage = nil
+                        unloadLibs()
+                        openUILib.clearFrameWork()
+
+                        debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
+
+                        forwardPageStack:pop()
+
+                        systemOut:setTextColor(colors.white)
+                        systemOut:setBackgroundColor(colors.black)
+                        systemOut:clear()
+
+                        downloadLibs(message.libs)
+
+                        local temp = io.open(path.."pages/currentPage.lua","w")
+                        temp:write(message.content)
+                        temp:close()
+
+                        os.loadAPI(path.."pages/currentPage.lua")
+                        parallel.waitForAny(function() currentPage.init(path) end,function() sleep(funcTimeoutTime) end)
+                    end
+                end
             elseif output == "reload" or output == 1 then
                 printDebug("reload",true)
-                rednet.send(serverIP,{message = pageStack:peak()})
+                rednet.send(serverIP,{message = backPageStack:peak()})
                 _,message = receive(2)
                 printDebug("received:"..textutils.serialise(message,{compact=true}))
                 if message.content ~= nil then
@@ -751,7 +784,7 @@ local function talkWithServer(serverIP)
                     unloadLibs()
                     openUILib.clearFrameWork()
 
-                    debugText, homeButton, backButton, reloadButton, exitButton = initHudButtons()
+                    debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
 
                     systemOut:setTextColor(colors.white)
                     systemOut:setBackgroundColor(colors.black)
@@ -764,7 +797,7 @@ local function talkWithServer(serverIP)
                     temp:close()
 
                     os.loadAPI(path.."pages/currentPage.lua")
-                    currentPage.init(path)
+                    parallel.waitForAny(function() currentPage.init(path) end,function() sleep(funcTimeoutTime) end)
                 end
             elseif output == "home" or output == -2 then
                 printDebug("home",true)
@@ -777,7 +810,7 @@ local function talkWithServer(serverIP)
         end
 
         if currentPage.disconnect then
-            parallel.waitForAny(function() currentPage.disconnect(path) end,function() sleep(disconnectTime) end)
+            parallel.waitForAny(function() currentPage.disconnect(path) end,function() sleep(funcTimeoutTime) end)
         end
 
         unloadLibs()
@@ -785,7 +818,8 @@ local function talkWithServer(serverIP)
 
         fs.delete(path.."pages/currentPage.lua")
 
-        pageStack:clear()
+        backPageStack:clear()
+        forwardPageStack:clear()
 
         systemOut:setTextColor(colors.white)
         systemOut:setBackgroundColor(colors.black)
