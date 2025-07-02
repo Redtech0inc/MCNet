@@ -310,6 +310,73 @@ function _G.Console:clear(posX,posY)
     self:display()
 end
 
+CookieHandle = {}
+CookieHandle.__index = CookieHandle
+
+function CookieHandle:loadCookies(filename)
+    filename = tostring(filename)
+
+    local obj = {}
+    local content
+    if fs.exists(path.."libs/"..filename) then
+        local temp = io.open(path.."libs/"..filename)
+        content = temp:read("a")
+        temp:close()
+    else
+        content = "{}"
+    end
+
+    obj.cookies = textutils.unserialise(content)
+
+    obj.fileName = path.."libs/"..filename
+
+    setmetatable(obj,self)
+    self.__index = self
+
+    return obj
+end
+
+function CookieHandle:checkCookies()
+    local delete={}
+    for i=1,#self.cookies do
+        if os.epoch("utc") >= self.cookies[i].epoch then
+            table.insert(delete,i)
+        end
+    end
+    for i=1,#delete do
+        table.remove(self.cookies,delete[i])
+    end
+end
+
+function CookieHandle:saveCookies()
+    self:checkCookies()
+
+    local temp = io.open(self.filename,"w")
+    temp:write(textutils.serialise(self.cookies))
+    temp:close()
+end
+
+function CookieHandle:setCookie(cookie,name,expirationEpoch)
+    self:checkCookies()
+
+    name = tostring(name)
+    cookie = tostring(cookie)
+    expirationEpoch = tonumber(expirationEpoch)
+    table.insert(self.cookies,{cookieValue = cookie, epoch = expirationEpoch, name = name})
+
+    self:saveCookies()
+end
+
+function CookieHandle:getCookie(name)
+    self:checkCookies()
+
+    for i=1,#self.cookies do
+        if self.cookies[i].name == name then
+            return self.cookies[i].cookies
+        end
+    end
+end
+
 term.clear()
 
 sleep(0.5)
@@ -385,6 +452,8 @@ openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local pageStack = Stack:init()
 local backPageStack = Stack:init()
+local cookies = CookieHandle:loadCookies("cookies.txt")
+cookies:checkCookies()
 
 printDebug("initiating start UI...",true)
 openUILib.setPaletteColor(colors.gray,"#444444")
@@ -412,6 +481,7 @@ openUILib.setBackgroundImage(defaultBackground)
 openUILib.render()
 
 local active = true
+local search
 
 peripheral.find("modem",function (name,_)
     if peripheral.call(name,"isWireless") then
@@ -528,6 +598,7 @@ local function hud(homeButton,backButton,reloadButton,exitButton)
     return output
 end
 
+
 local function initHudButtons()
     openUILib.hologram:addHologram(string.rep(" ",sizeX),nil,{lightGray=1},nil,1,1,nil,false)
     local debugText
@@ -565,14 +636,14 @@ local function talkWithServer(serverIP)
         currentPage.init(path)
 
         local repeatLoop = true
-        local output,additionalReturnValue, elapsedTime1,elapsedTime2,elapsedTimeDifference, preElapsedTimeDifference
+        local output, additionalReturnValue, elapsedTime1, elapsedTime2, elapsedTimeDifference, preElapsedTimeDifference
 
-
+        local lastCookie = cookies:getCookie(search)
         while repeatLoop do
 
             parallel.waitForAny(function() output = hud(homeButton,backButton,reloadButton,exitButton) end ,function()
                 elapsedTime1 = os.clock()
-                output,additionalReturnValue = currentPage.main(path)
+                output,additionalReturnValue = currentPage.main(path,lastCookie)
                 elapsedTime2 = os.clock()
                 elapsedTimeDifference = elapsedTime2 - elapsedTime1
                 if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
@@ -626,6 +697,16 @@ local function talkWithServer(serverIP)
 
                     os.loadAPI(path.."pages/currentPage.lua")
                     currentPage.init(path)
+                end
+            elseif output == 3 then
+                rednet.send(serverIP,additionalReturnValue)
+                local _,message = receive(2)
+                if message.message and message.date then
+                    cookies:setCookie(message.message,search,message.date)
+                    rednet.send(serverIP,{message= "cookie worked", worked = true})
+                    lastCookie = cookies:getCookie(search)
+                else
+                    rednet.send(serverIP,{message= "cookie failed", worked = false})
                 end
             elseif output == "back" or output == -1 then
                 printDebug("back",true)
@@ -740,7 +821,7 @@ while active and #dnsServers > 0 do
     openUILib.setPaletteColor(colors.gray,"#444444")
     openUILib.setPaletteColor(colors.lightGray,"#333333")
     openUILib.setPaletteColor(colors.white,"#ffffff")
-    local serverIP, search, exitButton
+    local serverIP, exitButton
     if not exitButton then
         exitButton = openUILib.hologram:addHologram("x",{red=1},{white=1},nil,sizeX,1)
     end
