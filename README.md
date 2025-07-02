@@ -73,7 +73,10 @@ server/
 
 <li> better comments for coders
 <li> api documentation
-<li> forward arrow button
+<li> saving pages
+<li> openUILib addition (selectable options UI segment)
+<li> settings for client
+<li> options for server renames
 
 ## disclaimer
 this is still in beta so please don't rage or insult for bad / not optimized code
