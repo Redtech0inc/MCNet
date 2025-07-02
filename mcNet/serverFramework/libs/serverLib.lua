@@ -26,6 +26,36 @@ local function getLibs(content)
     return libList
 end
 
+local function getEpochTimeDiff(timeTable)
+    local ms = 0
+
+    -- Better average constants
+    local MS_IN_HOUR = 3600000
+    local MS_IN_DAY = 86400000
+    local MS_IN_MONTH = 2628000000 -- 1/12 of a year
+    local MS_IN_YEAR = 31536000000
+
+    -- Safely add time parts
+    if type(timeTable.years) == "number" then
+        ms = ms + timeTable.years * MS_IN_YEAR
+    end
+    if type(timeTable.months) == "number" then
+        ms = ms + timeTable.months * MS_IN_MONTH
+    end
+    if type(timeTable.days) == "number" then
+        ms = ms + timeTable.days * MS_IN_DAY
+    end
+    if type(timeTable.hours) == "number" then
+        ms = ms + timeTable.hours * MS_IN_HOUR
+    end
+
+    if ms > MS_IN_YEAR then
+        ms = MS_IN_YEAR
+    end
+
+    return os.epoch("utc") + ms
+end
+
 local showExitMessage
 
 --SERVER FUNCTIONS
@@ -210,6 +240,32 @@ sendPage = function(ID,path)
     file:close()
 
     rednet.send(ID,{content = content, libs = getLibs(content)})
+end
+
+sendCookie = function (ID,valueTable,expirationDateTable)
+    if type(valueTable) ~= "table" then
+        valueTable = {tostring(valueTable)}
+    end
+
+    local serializedValueTable = textutils.serialise(valueTable)
+
+    --{epoch = nil , hours = 60 ,days = 1 , months = 1}
+    local time
+    if type(expirationDateTable) == "table" then
+        time = getEpochTimeDiff(expirationDateTable)
+    elseif type(expirationDateTable) == "number" then
+        local MS_IN_YEAR = 31536000000
+        time = expirationDateTable
+        if time > os.epoch("utc") + MS_IN_YEAR then
+            time = os.epoch("utc") + MS_IN_YEAR
+        end
+    else
+        time = os.epoch("utc") + 25920000000
+    end
+
+    if not time then return end
+
+    rednet.send(ID,{message = serializedValueTable, date = time})
 end
 
 deactivator = function()
