@@ -9,15 +9,16 @@
 
 --[[
 return codes:
-+------+----------------------+--------------------------+
-| code | action               | additional requirements  |
-+------+----------------------+--------------------------+
-| -3   | Ends net program     | None                     |
-| -2   | Ends page            | None                     |
-| -1   | Goes back 1 page     | None                     |
-|  1   | Reloads current page | None                     |
-|  2   | Loads new page       | Must return page message | --the message to give the server to download the page will be  shown in the server.lua file
-+-----------------------------+--------------------------+
++------+-----------------------+----------------------------+
+| code | action                | additional requirements    |
++------+-----------------------+----------------------------+
+| -3   | Ends net program      | None                       |
+| -2   | Ends page             | None                       |
+| -1   | Goes back 1 page      | None                       |
+|  1   | Reloads current page  | None                       |
+|  2   | Loads new page        | Must return page message   | --the message to give the server to download the page will be  shown in the server.lua file
+|  3   | set cookie val of page| Must return cookie message | --the message which when given to the server will return the cookie value and expiration date
++------------------------------+----------------------------+
 ]]
 
 local something,somethingSprite
@@ -35,7 +36,7 @@ end
 
 --init runs once upon startup
 init = function (path)
-    os.loadAPI(path.."libs/testLib.lua")--on receiving computer will find root and then go back one folder to enter apis folder where testLib.lua was downloaded to
+    os.loadAPI(path.."libs/testLib.lua")--on receiving computer will find root and then enter libs folder where testLib.lua was downloaded to
 
     somethingSprite = openUILib.getShapeSprite(colors.blue,"triangle",5,5)
     something = openUILib.sprite:addSprite(somethingSprite,nil,10,2)
@@ -52,7 +53,7 @@ init = function (path)
 end
 
 --main repeatedly runs in a loop together with the hud (if hud is used will stop)
-main = function(path)--there are currently 1 argument. this argument is the root path of the mcNet client
+main = function(path,lastCookie)--there are currently 2 argument. the 1st argument is the root path of the mcNet client, the 2nd argument is the pages cookie nil if it doesn't exist
     for i=1,math.random(30) do
         testLib.test(i)
         somethingSprite = openUILib.turnSprite(somethingSprite,1)
