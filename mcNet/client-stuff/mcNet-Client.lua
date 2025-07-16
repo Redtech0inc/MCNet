@@ -1406,8 +1406,13 @@ while active and #dnsServers > 0 do
         downloadButton = openUILib.hologram:addHologram("\025",{black=1},{white=1},nil,sizeX-2,1)
         restore()
     end
-    parallel.waitForAny(function() search = searchForAddress() end, function() search = homePageHud(exitButton,downloadButton) term.setTextColor(colors.white) term.setBackgroundColor(colors.black) end)
-
+    if not arg[1] then
+        parallel.waitForAny(function() search = searchForAddress() end, function() search = homePageHud(exitButton,downloadButton) term.setTextColor(colors.white) term.setBackgroundColor(colors.black) end)
+    else
+        search = arg[1]
+        arg[1] = nil
+    end
+        
     if search:lower() == "exit" then
         active = false
     elseif  search:lower() == "reload" then
