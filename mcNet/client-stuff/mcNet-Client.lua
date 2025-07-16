@@ -645,6 +645,11 @@ gatherColorValues()
 
 local sizeX,sizeY = term.getSize()
 
+if arg[1] then
+    printDebug("redirect arg given: arg[1]="..arg[1],true)
+    if debugMode then sleep(debugSleep) end
+end
+
 openUILib.init("mcNet")
 _G.systemOut = Console:init()
 --local fileOutput = Console:init(1,1,sizeX,sizeY-1)
