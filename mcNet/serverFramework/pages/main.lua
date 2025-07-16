@@ -29,8 +29,8 @@ disconnect = function()
     systemOut:print("hello world2")
 end
 
---hudUsed runs when the hud registered a mouse_click event
-hubUsed = function()
+--hubEvent runs when the hud registered a mouse_click event
+hubEvent = function()
     systemOut:print("hello world")
 end
 
