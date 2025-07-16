@@ -6,7 +6,7 @@ else
     path = string.sub(path,1,pathDiv) -- if there is a '/' remove everything in front of it to get the root
 end
 
-os.loadAPI(path.."libs/serverLib.lua") -- load lib
+os.loadAPI(path.."libs/serverLib.lua")
 
 local server = serverLib.Server:open("www.example.com")
 
