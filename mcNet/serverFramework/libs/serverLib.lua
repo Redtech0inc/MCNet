@@ -122,7 +122,8 @@ function Server:open(name)
 
 
     term.setTextColor(colors.green)
-    print("Server now Online")
+    term.write("Server now Online at: ")
+    print(name)
     term.setTextColor(colors.white)
 
     setmetatable(obj,self)
