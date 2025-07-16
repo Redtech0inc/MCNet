@@ -652,7 +652,6 @@ end
 
 openUILib.init("mcNet")
 _G.systemOut = Console:init()
---local fileOutput = Console:init(1,1,sizeX,sizeY-1)
 local backPageStack = Stack:init()
 local forwardPageStack = Stack:init()
 local cookies = CookieHandle:loadCookies("cookies.txt")
@@ -871,7 +870,7 @@ local function talkWithServer(serverIP)
 
         local debugText, homeButton, backButton, forwardButton, reloadButton, exitButton, downloadButton = initHudButtons()
 
-        if debugMode then debugText:changeHologramData("Measuring...") end
+        if debugMode then debugText:changeHologramData("Measuring..") end
         downloadLibs(message.libs)
 
         local temp = io.open(path.."pages/currentPage.lua","w")
@@ -896,8 +895,8 @@ local function talkWithServer(serverIP)
                 elapsedTimeDifference = elapsedTime2 - elapsedTime1
                 if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
                     local timeStr = tostring(elapsedTimeDifference)
-                    if #timeStr > (sizeX-6) then
-                        timeStr = timeStr:sub(1, sizeX-5) .. "..."
+                    if #timeStr > (sizeX-21) then
+                        timeStr = timeStr:sub(1, sizeX-19) .. ".."
                     end
                     debugText:changeHologramData("TLap:" .. timeStr .. "s",{white = 1})
                     debugText:render()
@@ -1276,6 +1275,8 @@ end
 
 local function useDownload(fileName)
 
+    local debugText, homeButton, backButton, forwardButton, reloadButton, exitButton, output, elapsedTime1, elapsedTime2, elapsedTimeDifference, preElapsedTimeDifference
+
     useColorValues()
     openUILib.clearFrameWork()
     openUILib.setBackgroundImage({{}})
@@ -1286,6 +1287,9 @@ local function useDownload(fileName)
     local content = temp:read("a")
     temp:close()
 
+    debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
+
+    if debugMode then debugText:changeHologramData("Measuring..") end
     loadDownloadedLibs(content)
 
     fs.move(path.."pages/"..fileName,path.."pages/currentPage.lua")
@@ -1296,10 +1300,8 @@ local function useDownload(fileName)
         fs.move(path.."pages/currentPage.lua",path.."pages/"..fileName)
         return
     end
-    local debugText, homeButton, backButton, forwardButton, reloadButton, exitButton, output, elapsedTime1, elapsedTime2, elapsedTimeDifference, preElapsedTimeDifference
-    local repeatLoop = true
 
-    debugText, homeButton, backButton, forwardButton, reloadButton, exitButton = initHudButtons()
+    local repeatLoop = true
 
     local lastCookie = cookies:getCookie(siteName)
 
@@ -1313,8 +1315,8 @@ local function useDownload(fileName)
             elapsedTimeDifference = elapsedTime2 - elapsedTime1
             if debugMode and elapsedTimeDifference ~= preElapsedTimeDifference then
                 local timeStr = tostring(elapsedTimeDifference)
-                if #timeStr > (sizeX-6) then
-                    timeStr = timeStr:sub(1, sizeX-5) .. "..."
+                if #timeStr > (sizeX-21) then
+                    timeStr = timeStr:sub(1, sizeX-19) .. ".."
                 end
                 debugText:changeHologramData("TLap:" .. timeStr .. "s")
                 debugText:render()
@@ -1417,7 +1419,7 @@ while active and #dnsServers > 0 do
         search = arg[1]
         arg[1] = nil
     end
-        
+
     if search:lower() == "exit" then
         active = false
     elseif  search:lower() == "reload" then
