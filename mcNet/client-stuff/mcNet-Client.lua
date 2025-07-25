@@ -654,7 +654,7 @@ openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local backPageStack = Stack:init()
 local forwardPageStack = Stack:init()
-local cookies = CookieHandle:loadCookies("cookies.txt")
+local cookies = CookieHandle:loadCookies(path..".cookies.txt")
 local downloadScreen = HologramScreen:init(2,sizeY-2,2)
 
 cookies:checkCookies()
