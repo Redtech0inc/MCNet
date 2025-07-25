@@ -259,9 +259,11 @@ sendCookie = function (ID,valueTable,expirationDateTable)
         time = expirationDateTable
         if time > os.epoch("utc") + MS_IN_YEAR then
             time = os.epoch("utc") + MS_IN_YEAR
+        elseif time <= os.epoch("utc") then
+            time = time + 3600000
         end
     else
-        time = os.epoch("utc") + 25920000000
+        time = os.epoch("utc") + 3600000
     end
 
     if not time then return end
