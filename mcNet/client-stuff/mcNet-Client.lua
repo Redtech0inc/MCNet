@@ -330,7 +330,7 @@ function CookieHandle:loadCookies(filename)
 
     obj.cookies = textutils.unserialiseJSON(content)
 
-    obj.fileName = path.."libs/"..filename
+    obj.filename = path.."libs/"..filename
 
     setmetatable(obj,self)
     self.__index = self
