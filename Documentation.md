@@ -9,7 +9,7 @@ these functions come preinstalled on the client as part of it's code and is acce
 ## Consoles
 
 in this category there are two things:
-`systemOut` which is a pre made console as seen in `www.example.com` and `Console` the class that `systemOut` originates from.
+`_G.systemOut` which is a pre made console as seen in `www.example.com` and `_G.Console` the class that `systemOut` originates from.
 
 ### _G.Console
 
