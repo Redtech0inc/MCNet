@@ -13,7 +13,7 @@ in this category there are two things:
 
 ### _G.Console
 
-this is the over all Consol class and consists of a ll functions available for `_G.systemOut`
+this is the over all Consol class and consists of all functions available for `_G.systemOut`
 
 <p><b>DO NOT USE PRINT:<br></b>
 this is because of the hud which will get pushed out of the screen if the common lua print function is used!
@@ -50,6 +50,7 @@ ConsoleOBJ:display()
 ### _G.systemOut
 
 this is a pre made Console object configured to perfectly fit inside the terminal with the hud on top
+this console can be accessed from any website and is created upon launch of the client
 
 it gets all of it functions from `_G.Console` and has none of it's own. So this is kinda for people that don't want or need to make their own output
 
