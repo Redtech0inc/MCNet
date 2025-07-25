@@ -31,7 +31,7 @@ _G.Console:init(x: number, y: number, width: number, height: number)
 <li>x: this is at what X position on screen the origin of your console should be (systemOut: 1)
 <li> y: this is at what Y position on screen the origin of your console should be (systemOut: 2)
 <li> width: this is how wide you console should be all text wrapping functions will adhere to this (systemOut: screen width)
-<li> height: this is how high you console should be meaning how many spaces down is should be be aware that because of the scrolling function there is 1 more buffer space below your given number which is important (systemOut: screen height - 1)
+<li> height: this is how high you console should be meaning how many spaces down it should be, be aware that because of the scrolling function there is 1 more buffer space below your given number which is important (systemOut: screen height - 1)
 <br><br>
 <b>Returns:</b>
 <li> consoleObject : metatable ; this is the console  object which you just created
