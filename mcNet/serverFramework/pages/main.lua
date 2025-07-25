@@ -54,6 +54,9 @@ end
 
 --main repeatedly runs in a loop together with the hud (if hud is used will stop)
 main = function(path,lastCookie)--there are currently 2 argument. the 1st argument is the root path of the mcNet client, the 2nd argument is the pages cookie nil if it doesn't exist
+    if not lastCookie then
+        return 3, {message = "getCookie"}
+    end
     for i=1,math.random(30) do
         testLib.test(i)
         somethingSprite = openUILib.turnSprite(somethingSprite,1)
