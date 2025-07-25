@@ -328,7 +328,7 @@ function CookieHandle:loadCookies(filename)
         content = "{}"
     end
 
-    obj.cookies = textutils.unserialise(content)
+    obj.cookies = textutils.unserialiseJSON(content)
 
     obj.fileName = path.."libs/"..filename
 
@@ -348,13 +348,16 @@ function CookieHandle:checkCookies()
     for i=1,#delete do
         table.remove(self.cookies,delete[i])
     end
+    if #self.cookies < 1 then
+        fs.delete(self.filename)
+    end
 end
 
 function CookieHandle:saveCookies()
     self:checkCookies()
 
     local temp = io.open(self.filename,"w")
-    temp:write(textutils.serialise(self.cookies))
+    temp:write(textutils.serialiseJSON(self.cookies))
     temp:close()
 end
 
@@ -654,7 +657,7 @@ openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local backPageStack = Stack:init()
 local forwardPageStack = Stack:init()
-local cookies = CookieHandle:loadCookies(path..".cookies.txt")
+local cookies = CookieHandle:loadCookies(path..".cookies.json")
 local downloadScreen = HologramScreen:init(2,sizeY-2,2)
 
 cookies:checkCookies()
