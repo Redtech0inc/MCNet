@@ -17,6 +17,8 @@ local function main()
         print("received message: "..tostring(message.message))
         if message.message == "connection test" then
             serverLib.sendPage(SenderID,path.."pages/main.lua") --loads main page and sends it to the client (note to self: lib importing!)
+        elseif message.message == "getCookie" then
+            serverLib.sendCookie(SenderID,{cookie1 = "this is a test cookie it expires in 30 Seconds"},os.epoch("utc")+30000)
         end
     end
 end
