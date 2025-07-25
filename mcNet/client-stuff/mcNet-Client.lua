@@ -320,8 +320,8 @@ function CookieHandle:loadCookies(filename)
 
     local obj = {}
     local content
-    if fs.exists(path.."libs/"..filename) then
-        local temp = io.open(path.."libs/"..filename)
+    if fs.exists(path..filename) then
+        local temp = io.open(path..filename)
         content = temp:read("a")
         temp:close()
     else
@@ -330,7 +330,7 @@ function CookieHandle:loadCookies(filename)
 
     obj.cookies = textutils.unserialiseJSON(content)
 
-    obj.filename = path.."libs/"..filename
+    obj.filename = path..filename
 
     setmetatable(obj,self)
     self.__index = self
@@ -377,7 +377,7 @@ function CookieHandle:getCookie(name)
 
     for i=1,#self.cookies do
         if self.cookies[i].name == name then
-            return self.cookies[i].cookies
+            return textutils.unserialiseJSON(self.cookies[i].cookieValue)
         end
     end
 end
@@ -657,7 +657,7 @@ openUILib.init("mcNet")
 _G.systemOut = Console:init()
 local backPageStack = Stack:init()
 local forwardPageStack = Stack:init()
-local cookies = CookieHandle:loadCookies(path..".cookies.json")
+local cookies = CookieHandle:loadCookies(".cookies.json")
 local downloadScreen = HologramScreen:init(2,sizeY-2,2)
 
 cookies:checkCookies()
@@ -953,10 +953,12 @@ local function talkWithServer(serverIP)
                 rednet.send(serverIP,additionalReturnValue)
                 local _,message = receive(2)
                 if message.message and message.date then
+                    printDebug("cookie received successfully")
                     cookies:setCookie(message.message,search,message.date)
                     rednet.send(serverIP,{message= "cookie worked", worked = true})
                     lastCookie = cookies:getCookie(search)
                 else
+                    printDebug("cookie was not received")
                     rednet.send(serverIP,{message= "cookie failed", worked = false})
                 end
             elseif output == "back" or output == -1 then
