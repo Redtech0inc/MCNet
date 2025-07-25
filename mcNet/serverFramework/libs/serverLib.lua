@@ -248,7 +248,7 @@ sendCookie = function (ID,valueTable,expirationDateTable)
         valueTable = {tostring(valueTable)}
     end
 
-    local serializedValueTable = textutils.serialise(valueTable)
+    local serializedValueTable = textutils.serialiseJSON(valueTable)
 
     --{epoch = nil , hours = 60 ,days = 1 , months = 1}
     local time
@@ -284,4 +284,3 @@ deactivator = function()
         end
     end
 end
-
