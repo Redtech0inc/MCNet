@@ -25,13 +25,8 @@ to set up the TDGameLib you can use:
 ```lua
 os.loadAPI(fileDirectory)
 ```
-or
-```lua
-require(fileName)
-```
 
-`fileDirectory` is the directory of the file e.g: `APIs/TDGameLib.lua` <br>
-and `fileName` is the name of the file e.g: `TDGameLib.lua`
+`fileDirectory` is the directory of the file e.g: `APIs/TDGameLib.lua`
 
 ## Functions
 
