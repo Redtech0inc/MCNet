@@ -370,3 +370,101 @@ serverLib.deactivator()
  ```lua
  parallel.waitForAny(main,serverLib.deactivator)
  ```
+<br><br><br>
+
+# Website Scripts
+
+web scripts are the way the client and the server communicate this is what get's send to the client using `serverLib.sendPage` to execute this targeted the client calls certain function names
+
+## init
+
+<b>Description:</b><br>
+this function is run when the page initiates so it only runs once at the start of the script
+
+```lua
+init = function (path)
+    os.loadAPI(path.."libs/testLib.lua")--on receiving computer will find root and then enter libs folder where testLib.lua was downloaded to
+
+    somethingSprite = openUILib.getShapeSprite(colors.blue,"triangle",5,5)
+    something = openUILib.sprite:addSprite(somethingSprite,nil,10,2)
+
+    local background = {}
+    for i=0,sizeX do
+        background[i]={}
+        for j=0,sizeY do
+            background[i][j] = colors.gray
+        end
+    end
+
+    openUILib.setBackgroundImage(background)
+end
+```
+<b>Given Arguments:</b>
+<li>path: this is the root path of the client
+
+### main
+
+<b>Description:</b><br>
+this function is called repeatably each time the function exits it is called again
+
+```lua
+main = function(path,lastCookie)--there are currently 2 argument. the 1st argument is the root path of the mcNet client, the 2nd argument is the pages cookie nil if it doesn't exist
+    if not lastCookie then
+        return 3, {message = "getCookie"}
+    end
+    for i=1,math.random(30) do
+        testLib.test(i)
+        somethingSprite = openUILib.turnSprite(somethingSprite,1)
+        something:changeSpriteData(somethingSprite)
+        openUILib.render()
+        sleep(0.1)
+    end
+end
+```
+<b>Given Arguments:</b>
+<li>path: this is the root path of the client
+<li>lastCookie: this is the cookie under this page name, is nil if there is no cookie
+
+### disconnect
+
+<b>Description:</b><br>
+this function is called when the client disconnects
+
+```lua
+disconnect = function(path)
+    rednet.send(serverIP,{message = "disconnect"})
+end
+```
+
+<b>Given Arguments:</b>
+<li>path: this is the root path of the client
+
+### hudEvent
+
+<b>Description:</b><br>
+
+```lua
+hubEvent = function(path)
+    systemOut:print("hello world")
+end
+```
+<b>Given Arguments:</b>
+<li>path: this is the root path of the client
+
+### Return Codes
+
+these are codes that when returned by the main function, can trigger certain actions<br><br>
+
+return codes:
+```
++------+-----------------------+----------------------------+
+| code | action                | additional requirements    |
++------+-----------------------+----------------------------+
+| -3   | Ends net program      | None                       |
+| -2   | Ends page             | None                       |
+| -1   | Goes back 1 page      | None                       |
+|  1   | Reloads current page  | None                       |
+|  2   | Loads new page        | Must return page message   | --the message to give the server to download the page will be  shown in the server.lua file
+|  3   | set cookie val of page| Must return cookie message | --the message which when given to the server will return the cookie value and expiration date
++------------------------------+----------------------------+
+```
