@@ -43,7 +43,7 @@ TDGameLib.init(name: any, onErrorCall: function|nil, useMonitor: boolean|nil, al
 
 <b>Description:</b><br>
 initiates a framework for a 2D game and sets base variables <b>MUST BE CALLED FIRST</b><br>
-<b>(This Functiuon has already been called in case of the mcNet client so you don't have to do that!)</b>
+<b>(This Function has already been called in case of the mcNet client so you don't have to do that!)</b>
 
 <b>Arguments:</b><br>
 >name: name of the game given to the game.gameName
