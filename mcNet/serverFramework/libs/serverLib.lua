@@ -87,7 +87,7 @@ function Server:open(name)
                 print("could not find any retrying... (retry:"..retries..")")
             end
         end
-    end 
+    end
 
     local function exitDNSloop()
         while true do
@@ -134,7 +134,7 @@ end
 
 function Server:receive(timeout,times)
     times = times or 1
-    times = math.floor(times)
+    times = math.floor(math.abs(times))
     if times < 1 then times = 1 end
 
     for _=1,times do
@@ -174,7 +174,7 @@ function Log:open(name)
     obj.lines = 1
 
     if obj.name == nil then
-        obj.name=os.date("%c")
+        obj.name=tostring(os.date("%c"))
     end
 
     --opens log
@@ -215,6 +215,7 @@ function Log:space(number)
     end
     for i = 1,number do
         self.log:write("\n")
+        self.lines=self.lines+1
     end
 end
 
@@ -260,7 +261,7 @@ sendCookie = function (ID,valueTable,expirationDateTable)
         if time > os.epoch("utc") + MS_IN_YEAR then
             time = os.epoch("utc") + MS_IN_YEAR
         elseif time <= os.epoch("utc") then
-            time = time + 3600000
+            time = os.epoch("utc") + 3600000
         end
     else
         time = os.epoch("utc") + 3600000
