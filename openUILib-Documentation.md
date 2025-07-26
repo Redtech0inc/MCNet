@@ -30,7 +30,7 @@ os.loadAPI(fileDirectory)
 
 ## Functions
 
-this part of the doc talks about the functions inside of this pack and how you can add your won to the objects
+this part of the documentation talks about the functions inside of this library and how you can add your own to the objects
 
 ### Framework Based Functions
 
