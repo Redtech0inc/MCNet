@@ -43,7 +43,7 @@ TDGameLib.init(name: any, onErrorCall: function|nil, useMonitor: boolean|nil, al
 
 <b>Description:</b><br>
 initiates a framework for a 2D game and sets base variables <b>MUST BE CALLED FIRST</b><br>
-<b>(This Function has already been called in case of the mcNet client so you don't have to do that!)</b>
+<b>This Function has already been called in case of the mcNet client so you don't have to do that!</b>
 
 <b>Arguments:</b><br>
 >name: name of the game given to the game.gameName
@@ -72,7 +72,8 @@ initiates a framework for a 2D game and sets base variables <b>MUST BE CALLED FI
 TDGameLib.quit(restart: boolean|nil, exitMessage: string|nil, exitMessageColor: number|nil)
 ```
 <b>Description:</b><br>
-ends the game and removes the framework
+ends the game and removes the framework<br>
+<b>Again this is called by the mcNet-client it's self so do not do this yourself it will only cause problems</b>
 
 <b>Arguments:</b><br>
 >restart: if true restarts the computer otherwise just resets the terminal/monitor. If not provided defaults to false
