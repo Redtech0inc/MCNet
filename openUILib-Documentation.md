@@ -153,9 +153,9 @@ this function is like term.setPalletColor but this accepts hex too and works for
 
 >hex: can be supplied a string like "#ff0000" or "0xff0000" or a number like 20 in which case it becomes the red amount
 
->g: is the green amount if hex was give a number then this must be a number as well
+>g: is the green amount if hex was given a number then this must be a number as well
 
->b: is the blue amount if hex was give a number then this must be a number as well
+>b: is the blue amount if hex was given a number then this must be a number as well
 
 <br>
 
