@@ -3,8 +3,6 @@
 ## about
 This is the official [insert website name here] repo for the MCNet Project Lua code for CC-Tweaked
 
-i know this isn't much but i just threw this repo together in like a few second so please don't be mad about that srry
-
 if you have questions feel free to ask on the MCCM Discord you should find my post under creations and then just the name of the repo [Discord LINK](https://discord.gg/minecraft-computer-mods-477910221872824320)
 
 I got this idea from someone else (i can't find the original video :,( ) who made a internet system but i wanted to see if i can do the same
@@ -79,5 +77,5 @@ server/
 <li> options for server renames
 
 ## disclaimer
-this is still in beta so please don't rage or insult for bad / not optimized code
+please don't rage or insult for bad / not optimized code
 and also i know i used os.loadAPI a LOT but idc bc there a places in this mess where os.loadAPI is the only option if you have a better one then just tell me how to EXACTLY improve it
