@@ -1,7 +1,7 @@
 # Client functions
 
 
-these functions come preinstalled on the client as part of it's code and is accessible for any website.
+these functions come preinstalled on the client as part of it's code and is accessible for any web script.
 
 ## Consoles
 
