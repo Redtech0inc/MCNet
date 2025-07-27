@@ -1,7 +1,3 @@
-# Disclaimer
-
-this is still work in progress so the documentation is not  done. Thanks! ^^
-
 # Client functions
 
 
