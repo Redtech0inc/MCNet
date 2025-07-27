@@ -73,7 +73,6 @@ server/
 ## coming soon/maybe today
 
 <li> better comments for coders
-<li> api documentation
 <li> saving pages
 <li> openUILib addition (selectable options UI segment)
 <li> settings for client
