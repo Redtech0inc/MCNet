@@ -327,10 +327,10 @@ structure if given a table:<br>
 
 ```lua
 {
-    years,
-    months,
-    days,
-    hours,
+    years=yearAmount,
+    months=monthAmount,
+    days=dayAmount,
+    hours=hourAmount,
 }
 ```
 <li> years: this describes how many years the cookie will last (1 year max)
