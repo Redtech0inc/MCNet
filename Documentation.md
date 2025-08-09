@@ -6,11 +6,11 @@ these functions come preinstalled on the client as part of it's code and is acce
 ## Consoles
 
 in this category there are two things:
-`_G.systemOut` which is a pre made console as seen in `www.example.com` and `_G.Console` the class that `systemOut` originates from.
+`systemOut` which is a pre made console as seen in `www.example.com` and `Console` the class that `systemOut` originates from these arr all in the global scope `_G`.
 
-### _G.Console
+### Console
 
-this is the over all Consol class and consists of all functions available for `_G.systemOut`
+this is the over all Consol class and consists of all functions available for `systemOut`
 
 <p><b>DO NOT USE PRINT:<br></b>
 this is because of the hud which will get pushed out of the screen if the common lua print function is used!
@@ -22,7 +22,7 @@ this is because of the hud which will get pushed out of the screen if the common
 this is the initiating function and is there to create the Consol Object. The function goes as follows:
 
 ```lua
-_G.Console:init(x: number, y: number, width: number, height: number)
+Console:init(x: number, y: number, width: number, height: number)
 ```
 
 <b>Arguments:</b>
@@ -161,12 +161,12 @@ ConsoleOBJ:print(str: any)
 <b>Arguments:</b>
 <li> str: this is what will be printed no to the Console
 
-### _G.systemOut
+### systemOut
 
 this is a pre made Console object configured to perfectly fit inside the terminal with the hud on top
 this console can be accessed from any website and is created upon launch of the client
 
-it gets all of it functions from `_G.Console` and has none of it's own. So this is kinda for people that don't want or need to make their own output
+it gets all of it functions from `Console` and has none of it's own. So this is kinda for people that don't want or need to make their own output
 
 the only addition is that whenever the openUILib renders it also draws the `systemOut` console
 
@@ -464,3 +464,4 @@ return codes:
 |  3   | set cookie val of page| Must return cookie message | --the message which when given to the server will return the cookie value and expiration date
 +------------------------------+----------------------------+
 ```
+
